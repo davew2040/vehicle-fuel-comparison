@@ -1,0 +1,29 @@
+.form-entry {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+}
+
+.form-label {
+  text-align: end;
+  width: 175px;
+  margin-right: 10px
+}
+
+.form-summary {
+  margin-top: 50px;
+}
+
+.trailing {
+  font-size: 0.7em;
+  margin-left: -2px;
+  vertical-align: top; /* Raise it above the baseline */
+}
+
+.ev-cost-per-mile {
+  margin-bottom: 10px;
+}
+
+.ev-cost-percentage {
+  margin-bottom: 10px;
+}

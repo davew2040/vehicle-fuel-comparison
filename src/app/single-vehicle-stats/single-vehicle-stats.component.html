@@ -1,0 +1,76 @@
+<form [formGroup]="valuesForm">
+  <div class='form-entry'>
+    <div class='form-label'>
+      <label for="cityMpg"></label>
+    </div>
+    <input id="cityMpg" formControlName="cityMpg" type="text">
+    <div *ngIf="formControls['cityMpg'].invalid && (formControls['cityMpg'].dirty || formControls['cityMpg'].touched)">
+      <div *ngIf="formControls['cityMpg'].hasError('required')">
+        Required field.
+      </div>
+      <div *ngIf="formControls['cityMpg'].hasError('pattern')">
+        Must be a number.
+      </div>
+    </div>
+  </div>
+
+  <div class='form-entry'>
+    <div class='form-label'>
+      <label for="highwayMpg"></label>
+    </div>
+    <input id="highwayMpg" formControlName="highwayMpg" type="text">
+    <div *ngIf="formControls['highwayMpg'].invalid && (formControls['highwayMpg'].dirty || formControls['highwayMpg'].touched)">
+      <div *ngIf="formControls['highwayMpg'].hasError('required')">
+        Required field.
+      </div>
+      <div *ngIf="formControls['highwayMpg'].hasError('pattern')">
+        Must be a number.
+      </div>
+    </div>
+  </div>
+
+  <div class='form-entry'>
+    <div class='form-label'>
+      <label for="cityMpkwh"></label>
+    </div>
+    <input id="cityMpkwh" formControlName="cityMpkwh" type="text">
+    <div *ngIf="formControls['cityMpkwh'].invalid && (formControls['cityMpkwh'].dirty || formControls['cityMpkwh'].touched)">
+      <div *ngIf="formControls['cityMpkwh'].hasError('required')">
+        Required field.
+      </div>
+      <div *ngIf="formControls['cityMpkwh'].hasError('pattern')">
+        Must be a number.
+      </div>
+    </div>
+  </div>
+
+  <div class='form-entry'>
+    <div class='form-label'>
+      <label for="highwayMpKwh"></label>
+    </div>
+    <input id="highwayMpKwh" formControlName="highwayMpKwh" type="text">
+    <div *ngIf="formControls['highwayMpKwh'].invalid && (formControls['highwayMpKwh'].dirty || formControls['highwayMpKwh'].touched)">
+      <div *ngIf="formControls['highwayMpKwh'].hasError('required')">
+        Required field.
+      </div>
+      <div *ngIf="formControls['highwayMpKwh'].hasError('pattern')">
+        Must be a number.
+      </div>
+    </div>
+  </div>
+
+  <div class='form-entry'>
+    <div class='form-label'>
+      <label for="selectedFuelType"></label>
+    </div>
+
+    <label *ngFor="let fuelType of fuelTypeOptions">
+      <input
+        type="radio"
+        formControlName="selectedFuelType"
+        [value]="fuelType"
+      />
+      {{ fuelType }}
+    </label>
+  </div>
+</form>
