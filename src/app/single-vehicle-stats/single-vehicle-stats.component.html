@@ -20,19 +20,19 @@
   </div>
 
   <div class='form-entry row mt-4'>
-    <label for="selectedFuelType"></label>
+    <label for="selectedFuelType" class="mb-3">Fuel Type</label>
 
     <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
       <ng-container *ngFor="let fuelType of fuelTypeOptions; let i = index">
         <input
           type="radio"
           class="btn-check"
-          [id]="'btnradio' + i"
+          [id]="btnPrefix + 'btnradio' + i"
           formControlName="selectedFuelType"
           [value]="fuelType"
           autocomplete="off"
         >
-        <label class="btn btn-outline-primary" [for]="'btnradio' + i">
+        <label class="btn btn-outline-primary" [for]="btnPrefix + 'btnradio' + i">
           {{ fuelType | titlecase }}
         </label>
       </ng-container>

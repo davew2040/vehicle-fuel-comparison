@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { numberValidator } from '../validators/number-validator';
 import { FuelType } from '../enums/fuel-type';
@@ -11,7 +11,7 @@ import { FuelTypeApiValue } from '../enums/fuel-type-api-values';
 
 @Component({
   selector: 'app-single-vehicle-stats',
-  imports: [TrailingDecimalsPipe, CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './single-vehicle-stats.component.html',
   styleUrl: './single-vehicle-stats.component.scss'
 })
@@ -22,6 +22,9 @@ export class SingleVehicleStatsComponent {
 
   @Output()
   selectedVehicleStats = new EventEmitter<SingleVehicleStatsData>();
+
+  @Input()
+  btnPrefix: string = ""
 
   constructor(private fb: FormBuilder) {
     this.destroy$ = new Subject<void>();
