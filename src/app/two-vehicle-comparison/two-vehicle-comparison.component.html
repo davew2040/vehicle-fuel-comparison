@@ -1,0 +1,79 @@
+<div class='comparison-summary' *ngIf="comparison">
+    <div class="card mb-4 rounded-3 shadow-sm">
+      <div class="card-header py-3">
+        <h4 class="my-0 fw-normal">Vehicle #1 vs Vehicle #2</h4>
+      </div>
+
+      <div class="card-body row text-start">
+        <ng-container
+          *ngTemplateOutlet="twovehiclegroup;
+            context: {
+              label: 'City',
+              cost1: comparison.cityCost1,
+              cost2: comparison.cityCost2
+            }">
+        </ng-container>
+
+        <ng-container
+          *ngTemplateOutlet="twovehiclegroup;
+            context: {
+              label: 'Highway',
+              cost1: comparison.highwayCost1,
+              cost2: comparison.highwayCost2
+            }">
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="card mb-4 rounded-3 shadow-sm">
+      <div class="card-header py-3">
+        <h4 class="my-0 fw-normal">Vehicle #2 vs Vehicle #1</h4>
+      </div>
+
+      <div class="card-body row text-start">
+        <ng-container
+          *ngTemplateOutlet="twovehiclegroup;
+            context: {
+              label: 'City',
+              cost1: comparison.cityCost2,
+              cost2: comparison.cityCost1
+            }">
+        </ng-container>
+
+        <ng-container
+          *ngTemplateOutlet="twovehiclegroup;
+            context: {
+              label: 'Highway',
+              cost1: comparison.highwayCost2,
+              cost2: comparison.highwayCost1
+            }">
+        </ng-container>
+      </div>
+    </div>
+</div>
+
+<ng-template #twovehiclegroup let-label="label" let-cost1="cost1" let-cost2="cost2">
+  <div class="row mx-auto cost-summary-table">
+    <div class="col-4 row-span-2 themed-grid-col d-flex align-items-center">
+      <!-- This spans two rows -->
+      <h4>{{ label }}</h4>
+    </div>
+
+    <div class="col-8 themed-grid-col">
+      <div class="row">
+        <div class="col themed-grid-col">Cost % Difference</div>
+        <div class="col themed-grid-col">
+          <app-cost-comparison [difference]="cost1/cost2"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col themed-grid-col">
+          Total annual difference
+        </div>
+        <div class="col themed-grid-col">
+          <app-dollars-cost-comparison [costOne]="cost1" [costTwo]="cost2"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

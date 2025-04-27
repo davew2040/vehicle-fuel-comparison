@@ -1,76 +1,55 @@
 <form [formGroup]="valuesForm">
-  <div class='form-entry'>
-    <div class='form-label'>
-      <label for="cityMpg"></label>
+  <div [hidden]="isElectricSelected()">
+    <ng-container
+      *ngTemplateOutlet="formField; context: { controlName: 'cityMpg', label: 'City Mi/G' }">
+    </ng-container>
+
+    <ng-container
+      *ngTemplateOutlet="formField; context: { controlName: 'highwayMpg', label: 'Highway Mi/G' }">
+    </ng-container>
+  </div>
+
+  <div [hidden]="isGasolineSelected()">
+    <ng-container
+      *ngTemplateOutlet="formField; context: { controlName: 'cityMpkwh', label: 'City Mi/kWh' }">
+    </ng-container>
+
+    <ng-container
+      *ngTemplateOutlet="formField; context: { controlName: 'highwayMpKwh', label: 'Highway Mi/kWh' }">
+    </ng-container>
+  </div>
+
+  <div class='form-entry row mt-4'>
+    <label for="selectedFuelType"></label>
+
+    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+      <ng-container *ngFor="let fuelType of fuelTypeOptions; let i = index">
+        <input
+          type="radio"
+          class="btn-check"
+          [id]="'btnradio' + i"
+          formControlName="selectedFuelType"
+          [value]="fuelType"
+          autocomplete="off"
+        >
+        <label class="btn btn-outline-primary" [for]="'btnradio' + i">
+          {{ fuelType | titlecase }}
+        </label>
+      </ng-container>
     </div>
-    <input id="cityMpg" formControlName="cityMpg" type="text">
-    <div *ngIf="formControls['cityMpg'].invalid && (formControls['cityMpg'].dirty || formControls['cityMpg'].touched)">
-      <div *ngIf="formControls['cityMpg'].hasError('required')">
-        Required field.
+  </div>
+
+  <ng-template #formField let-controlName="controlName" let-label="label">
+    <div class="form-entry mb-3">
+      <label [for]="controlName" class="form-label">{{ label }}</label>
+      <input [id]="controlName" class="form-control" [formControlName]="controlName" />
+
+      <div *ngIf="valuesForm.get(controlName)?.touched && valuesForm.get(controlName)?.invalid" class="text-danger mt-1">
+        This field is required.
       </div>
-      <div *ngIf="formControls['cityMpg'].hasError('pattern')">
+      <div *ngIf="valuesForm.get(controlName)!.hasError('pattern')">
         Must be a number.
       </div>
     </div>
-  </div>
-
-  <div class='form-entry'>
-    <div class='form-label'>
-      <label for="highwayMpg"></label>
-    </div>
-    <input id="highwayMpg" formControlName="highwayMpg" type="text">
-    <div *ngIf="formControls['highwayMpg'].invalid && (formControls['highwayMpg'].dirty || formControls['highwayMpg'].touched)">
-      <div *ngIf="formControls['highwayMpg'].hasError('required')">
-        Required field.
-      </div>
-      <div *ngIf="formControls['highwayMpg'].hasError('pattern')">
-        Must be a number.
-      </div>
-    </div>
-  </div>
-
-  <div class='form-entry'>
-    <div class='form-label'>
-      <label for="cityMpkwh"></label>
-    </div>
-    <input id="cityMpkwh" formControlName="cityMpkwh" type="text">
-    <div *ngIf="formControls['cityMpkwh'].invalid && (formControls['cityMpkwh'].dirty || formControls['cityMpkwh'].touched)">
-      <div *ngIf="formControls['cityMpkwh'].hasError('required')">
-        Required field.
-      </div>
-      <div *ngIf="formControls['cityMpkwh'].hasError('pattern')">
-        Must be a number.
-      </div>
-    </div>
-  </div>
-
-  <div class='form-entry'>
-    <div class='form-label'>
-      <label for="highwayMpKwh"></label>
-    </div>
-    <input id="highwayMpKwh" formControlName="highwayMpKwh" type="text">
-    <div *ngIf="formControls['highwayMpKwh'].invalid && (formControls['highwayMpKwh'].dirty || formControls['highwayMpKwh'].touched)">
-      <div *ngIf="formControls['highwayMpKwh'].hasError('required')">
-        Required field.
-      </div>
-      <div *ngIf="formControls['highwayMpKwh'].hasError('pattern')">
-        Must be a number.
-      </div>
-    </div>
-  </div>
-
-  <div class='form-entry'>
-    <div class='form-label'>
-      <label for="selectedFuelType"></label>
-    </div>
-
-    <label *ngFor="let fuelType of fuelTypeOptions">
-      <input
-        type="radio"
-        formControlName="selectedFuelType"
-        [value]="fuelType"
-      />
-      {{ fuelType }}
-    </label>
-  </div>
+  </ng-template>
 </form>

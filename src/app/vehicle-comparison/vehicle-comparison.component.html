@@ -1,181 +1,153 @@
-<!-- <form [formGroup]="numberForm">
-  <div class='form-entry'>
-    <div class='form-label'>
-      <label for="milesPerGallon">ICE Miles per Gallon:</label>
-    </div>
-    <input id="milesPerGallon" formControlName="milesPerGallon" type="text">
-    <div *ngIf="formControls['milesPerGallon'].invalid && (formControls['milesPerGallon'].dirty || formControls['milesPerGallon'].touched)">
-      <div *ngIf="formControls['milesPerGallon'].hasError('required')">
-        Required field.
-      </div>
-      <div *ngIf="formControls['milesPerGallon'].hasError('pattern')">
-        Must be a number.
-      </div>
-    </div>
-  </div>
 
-  <div class='form-entry'>
-    <div class='form-label'>
-      <label for="costPerGallon">ICE Cost per Gallon:</label>
-    </div>
-    <input id="costPerGallon" formControlName="costPerGallon" type="text">
-    <div *ngIf="formControls['costPerGallon'].invalid && (formControls['costPerGallon'].dirty || formControls['costPerGallon'].touched)">
-      <div *ngIf="formControls['costPerGallon'].hasError('required')">
-        Required field.
-      </div>
-      <div *ngIf="formControls['costPerGallon'].hasError('pattern')">
-        Must be a number.
-      </div>
-    </div>
-  </div>
+<form  class="needs-validation" [formGroup]="numberForm">
+  <div class="row-cols-1 mb-3 text-center">
+      <div class="card mb-4 rounded-3 shadow-sm">
+        <div class="card-header py-3">
+          <h4 class="my-0 fw-normal">Shared Driving Values</h4>
+        </div>
 
-  <div class='form-entry'>
-    <div class='form-label'>
-      <label for="milesPerKwh">EV Miles per kWh:</label>
-    </div>
-    <input id="milesPerKwh" formControlName="milesPerKwh" type="text">
-    <div *ngIf="formControls['milesPerKwh'].invalid && (formControls['milesPerKwh'].dirty || formControls['milesPerKwh'].touched)">
-      <div *ngIf="formControls['milesPerKwh']?.hasError('required')">
-        Required field.
-      </div>
-      <div *ngIf="formControls['milesPerKwh'].hasError('pattern')">
-        Must be a number.
-      </div>
-    </div>
-  </div>
+        <div class="card-body text-start px-4">
+          <div class='form-entry row mb-3'>
+            <label for="costPerGallon" class="form-label">Gasoline $ per gallon:</label>
+            <input id="costPerGallon" class="form-control" formControlName="costPerGallon" type="text">
 
-  <div class='form-entry'>
-    <div class='form-label'>
-      <label for="costPerKwh">EV Cost per kWh:</label>
-    </div>
-    <input id="costPerKwh" formControlName="costPerKwh" type="text">
-    <div *ngIf="formControls['costPerKwh'].invalid && (formControls['costPerKwh'].dirty || formControls['costPerKwh'].touched)">
-      <div *ngIf="formControls['costPerKwh'].hasError('required')">
-        Required field.
-      </div>
-      <div *ngIf="formControls['costPerKwh'].hasError('pattern')">
-        Must be a number.
-      </div>
-    </div>
-  </div>
+            <div *ngIf="formControls['costPerGallon'].invalid && (formControls['costPerGallon'].dirty || formControls['costPerGallon'].touched)">
+              <div *ngIf="formControls['costPerGallon'].hasError('required')">
+                Required field.
+              </div>
+              <div *ngIf="formControls['costPerGallon'].hasError('pattern')">
+                Must be a number.
+              </div>
+            </div>
+          </div>
 
-  <div class='form-entry'>
-    <div class='form-label'>
-      <label for="milesPerYear">Miles Driven per Year:</label>
-    </div>
-    <input id="milesPerYear" formControlName="milesPerYear" type="text">
-    <div *ngIf="formControls['milesPerYear'].invalid && (formControls['milesPerYear'].dirty || formControls['milesPerYear'].touched)">
-      <div *ngIf="formControls['milesPerYear'].hasError('required')">
-        Required field.
-      </div>
-      <div *ngIf="formControls['milesPerYear'].hasError('pattern')">
-        Must be an integer.
-      </div>
-    </div>
-  </div>
-</form>-->
+          <div class='form-entry row mb-3'>
+            <label for="costPerKwh" class="form-label">Electricity $ per kWh:</label>
+            <input id="costPerKwh" class="form-control" formControlName="costPerKwh" type="text">
 
-<div>
-  <app-single-vehicle-stats #vehicleOne (selectedVehicleStats)="this.vehicleOneStats$.next($event)"></app-single-vehicle-stats>
-  <app-single-vehicle-stats></app-single-vehicle-stats>
-</div>
+            <div *ngIf="formControls['costPerKwh'].invalid && (formControls['costPerKwh'].dirty || formControls['costPerKwh'].touched)">
+              <div *ngIf="formControls['costPerKwh'].hasError('required')">
+                Required field.
+              </div>
+              <div *ngIf="formControls['costPerKwh'].hasError('pattern')">
+                Must be a number.
+              </div>
+            </div>
+          </div>
 
-  <!-- <div class='form-summary'>
-    <div class="valid-form-summary" *ngIf="numberForm.valid;else invalid_content">
-      <div class="ice-cost-per-mile">
-        ICE cost per mile: <span>${{ this.costSummary.iceCostPerMile | number:'1.2-2' }}</span><span class="trailing"> {{ this.costSummary.iceCostPerMile | trailingDecimals }} </span>
-      </div>
-      <div class="ev-cost-per-mile">
-        EV cost per mile: <span>${{ this.costSummary.evCostPerMile | number:'1.2-2' }}</span><span class="trailing"> {{ this.costSummary.evCostPerMile | trailingDecimals }} </span>
-      </div>
-      <div class="ice-cost-percentage">
-        This ICE vehicle costs {{ this.costSummary.iceToEvPercentage*100 | number:'1.2-2' }}% of the equivalent EV
-      </div>
-      <div class="ev-cost-percentage">
-        This EV costs {{ this.costSummary.evToIcePercentage*100 | number:'1.2-2'}}% of the equivalent ICE vehicle
-      </div>
-      <div class="ice-cost-per-year">
-        This ICE vehicle costs ${{ this.costSummary.iceCostPerYear | number:'1.2-2'}} per year in fueling costs.
-      </div>
-      <div class="ev-cost-per-year">
-        This EV costs ${{ this.costSummary.evCostPerYear | number:'1.2-2'}} per year in fueling costs.
-      </div>
-    </div>
-  </div> -->
+          <div class='form-entry row mb-3'>
+            <label for="milesPerYear" class="form-label">Miles driven per year:</label>
+            <input id="milesPerYear" class="form-control" formControlName="milesPerYear" type="text">
 
-  <div class='form-summary' *ngIf="vehicleOneSummary$ | async as vehicleOneSummary">
-    <div class="valid-form-summary" *ngIf="numberForm.valid;else invalid_content">
-      <div>
-        City $ per mile: <span>${{ vehicleOneSummary.cityCostPerMile | noRound:2 }}</span>
-          <span class="trailing"> {{ vehicleOneSummary.cityCostPerMile | trailingDecimals }} </span>
-      </div>
-      <div>
-        Highway $ per mile: <span>${{ vehicleOneSummary.highwayCostPerMile | noRound:2 }}</span>
-          <span class="trailing"> {{ vehicleOneSummary.highwayCostPerMile | trailingDecimals }} </span>
-      </div>
-      <div>
-        City $ per year: <span>${{ vehicleOneSummary.cityCostPerYear | number:'1.2-2' }}</span>
-      </div>
-      <div>
-        Highway $ per year: <span>${{ vehicleOneSummary.highwayCostPerYear | number:'1.2-2' }}</span>
-      </div>
+            <div *ngIf="formControls['milesPerYear'].invalid && (formControls['milesPerYear'].dirty || formControls['milesPerYear'].touched)">
+              <div *ngIf="formControls['milesPerYear'].hasError('required')">
+                Required field.
+              </div>
+              <div *ngIf="formControls['milesPerYear'].hasError('pattern')">
+                Must be an integer.
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
-  </div>
-
-<div style="margin-top: 50px">
-<form [formGroup]="vehicleSearchForm">
-  <select formControlName="year" >
-    <option value="undefined" disabled selected>Select Year</option>
-    <option *ngFor="let option of availableYears$ | async" [value]="option">{{ option }}</option>
-  </select>
-
-  <div [hidden]="!vehicleSearchControls['year'].value">
-    <select formControlName="make" >
-      <option value="undefined" disabled selected>Select Make</option>
-      <option *ngFor="let option of availableMakes$ | async" [value]="option">{{ option }}</option>
-    </select>
-  </div>
-
-  <div [hidden]="!vehicleSearchControls['make'].value">
-    <select formControlName="model">
-      <option value="" disabled selected>Select Model</option>
-      <option *ngFor="let option of availableModels$ | async" [value]="option">{{ option }}</option>
-    </select>
-  </div>
-
-  <div [hidden]="!vehicleSearchControls['model'].value">
-    <select formControlName="trim">
-      <option value="" disabled selected>Select Trim</option>
-      <option *ngFor="let option of availableTrims$ | async" [value]="option.id">{{ option.text }}</option>
-    </select>
-  </div>
-
-  <div *ngIf="efficiencyInfo$ | async as e" style="margin-top: 25px">
-    <div *ngIf="e.city08">
-      Fuel Type: {{ e.fuelType }}
-    </div>
-    <div *ngIf="e.city08">
-      city MPGe: {{ e.city08U }}
-    </div>
-    <div *ngIf="e.highway08">
-      highway MPGe: {{ e.highway08U }}
-    </div>
-    <div *ngIf="e.fuelType == 'Electricity'">
-      highway MPGe: {{ 100.0 / e.cityE }}
-    </div>
-    <div *ngIf="e.fuelType == 'Electricity'">
-      highway estimated mi/kw: {{ e.city08U / 33.705 }}
-    </div>
-    <div *ngIf="latestEfficiencyInfo">
-      <button (click)="setVehicle(e)" >Set Vehicle #1</button>
-    </div>
-    <ul>
-      <li *ngFor="let entry of e | keyvalue">
-        {{ entry.key }}: {{ entry.value }}
-      </li>
-    </ul>
   </div>
 </form>
-</div>
 
-<ng-template #invalid_content>Provided values are not valid.</ng-template>
+
+  <div class="row mb-3 text-center">
+    <div class="col-12 col-lg-6">
+      <div class="card mb-4 rounded-3 shadow-sm">
+        <div class="card-header py-3">
+          <h4 class="my-0 fw-normal">Vehicle #1</h4>
+        </div>
+        <div class="card-body text-start">
+          <app-vehicle-picker #vehiclePickerOne [buttonText]="'Set Vehicle #1'" (vehicleSelected)="setVehicleOne($event)"></app-vehicle-picker>
+
+          <app-single-vehicle-stats #vehicleOne (selectedVehicleStats)="this.vehicleOneStats$.next($event)"></app-single-vehicle-stats>
+
+          <div class='single-cost-summary' *ngIf="vehicleOneSummary$ | async as summary">
+            <ng-container
+              *ngTemplateOutlet="singlecostsummary;
+                context: {
+                  rowtype: 'City',
+                  costpermile: summary.cityCostPerMile,
+                  costperyear: summary.cityCostPerYear
+                }">
+            </ng-container>
+            <ng-container
+              *ngTemplateOutlet="singlecostsummary;
+                context: {
+                  rowtype: 'Highway',
+                  costpermile: summary.highwayCostPerMile,
+                  costperyear: summary.highwayCostPerYear
+                }">
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="col card mb-4 rounded-3 shadow-sm">
+        <div class="card-header py-3">
+          <h4 class="my-0 fw-normal">Vehicle #2</h4>
+        </div>
+        <div class="card-body text-start">
+          <app-vehicle-picker #vehiclePickerTwo [buttonText]="'Set Vehicle #2'" (vehicleSelected)="setVehicleTwo($event)"></app-vehicle-picker>
+
+          <app-single-vehicle-stats #vehicleTwo (selectedVehicleStats)="this.vehicleTwoStats$.next($event)"></app-single-vehicle-stats>
+
+          <div class='single-cost-summary' *ngIf="vehicleTwoSummary$ | async as summary">
+            <ng-container
+                *ngTemplateOutlet="singlecostsummary;
+                  context: {
+                    rowtype: 'City',
+                    costpermile: summary.cityCostPerMile,
+                    costperyear: summary.cityCostPerYear
+                  }">
+            </ng-container>
+            <ng-container
+                *ngTemplateOutlet="singlecostsummary;
+                context: {
+                  rowtype: 'Highway',
+                  costpermile: summary.highwayCostPerMile,
+                  costperyear: summary.highwayCostPerYear
+                }">
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <ng-template #singlecostsummary let-rowtype="rowtype" let-costpermile="costpermile" let-costperyear="costperyear">
+      <div class="row mx-auto cost-summary-table">
+        <div class="col-4 row-span-2 themed-grid-col d-flex align-items-center">
+          <!-- This spans two rows -->
+          <h4>{{rowtype}}</h4>
+        </div>
+
+        <div class="col-8 themed-grid-col">
+          <div class="row">
+            <div class="col themed-grid-col">$ per mile</div>
+            <div class="col themed-grid-col">
+              <span>${{ costpermile | noRound:2 }}</span>
+              <span class="trailing"> {{ costpermile | trailingDecimals }} </span></div>
+          </div>
+          <div class="row">
+            <div class="col themed-grid-col">
+              $ per year
+            </div>
+            <div class="col themed-grid-col">
+              <span>${{ costperyear | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+  <div class='comparison-summary' *ngIf="vehicleComparison$ | async as comparison">
+    <app-two-vehicle-comparison [comparison]="comparison"/>
+  </div>
+
+  <ng-template #invalid_content>Provided values are not valid.</ng-template>

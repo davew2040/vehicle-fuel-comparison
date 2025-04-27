@@ -1,0 +1,12 @@
+<div class='comparison-summary'>
+  <div>
+    <span *ngIf="difference >=  0.99 && difference <=  1.01">
+      Identical
+    </span>
+    <span *ngIf="difference > 1.01">
+      <span class="bad-text">{{ (difference - 1.0)*100.0 | number:'1.2-2' }}% more</span>
+    </span>
+    <span *ngIf="difference < 0.99">
+      <span class="good-text">{{(1.0-difference)*100.0 | number:'1.2-2' }}% less</span>
+    </span>
+</div>

@@ -1,1 +1,115 @@
-<p>vehicle-picker works!</p>
+<div style="margin-top: 50px">
+  <form [formGroup]="vehicleSearchForm">
+
+    <div class="dropdown mb-3">
+      <button
+          class="btn btn-secondary dropdown-toggle w-100"
+          type="button"
+          id="dropdownMenuButton"
+          data-bs-toggle="dropdown"
+          aria-expanded="false">
+        {{ vehicleSearchForm.get('year')?.value || 'Select year' }}
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <li *ngFor="let option of availableYears$ | async">
+          <a
+            class="dropdown-item"
+            href="#"
+            (click)="this.vehicleSearchForm.get('year')?.setValue(option); $event.preventDefault();">
+            {{ option }}
+            <span *ngIf="vehicleSearchForm.get('year')?.value === option">✅</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="dropdown mb-3">
+      <button
+          class="btn btn-secondary dropdown-toggle w-100"
+          type="button"
+          id="dropdownMenuButton"
+          data-bs-toggle="dropdown"
+          aria-expanded="false">
+        {{ vehicleSearchForm.get('make')?.value || 'Select make' }}
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <li *ngFor="let option of availableMakes$ | async">
+          <a
+            class="dropdown-item"
+            href="#"
+            (click)="this.vehicleSearchForm.get('make')?.setValue(option); $event.preventDefault();">
+            {{ option }}
+            <!--  <span *ngIf="vehicleSearchForm.get('make')?.value === option">✅</span> -->
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="dropdown mb-3">
+      <button
+          class="btn btn-secondary dropdown-toggle w-100"
+          type="button"
+          id="dropdownMenuButton"
+          data-bs-toggle="dropdown"
+          aria-expanded="false">
+        {{ vehicleSearchForm.get('model')?.value || 'Select model' }}
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <li *ngFor="let option of availableModels$ | async">
+          <a
+            class="dropdown-item"
+            href="#"
+            (click)="this.vehicleSearchForm.get('model')?.setValue(option); $event.preventDefault();">
+            {{ option }}
+            <span *ngIf="vehicleSearchForm.get('model')?.value === option">✅</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="dropdown mb-3">
+      <button
+          class="btn btn-secondary dropdown-toggle w-100"
+          type="button"
+          id="dropdownMenuButton"
+          data-bs-toggle="dropdown"
+          aria-expanded="false">
+        {{ vehicleSearchForm.get('trim')?.value || 'Select trim' }}
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <li *ngFor="let option of availableTrims$ | async">
+          <a
+            class="dropdown-item"
+            href="#"
+            (click)="this.vehicleSearchForm.get('trim')?.setValue(option.id); $event.preventDefault();">
+            {{ option.text }}
+            <span *ngIf="vehicleSearchForm.get('trim')?.value === option">✅</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- <div *ngIf="efficiencyInfo$ | async as e" style="margin-top: 25px">
+      <div *ngIf="e.city08">
+        Fuel Type: {{ e.fuelType }}
+      </div>
+      <div *ngIf="e.city08">
+        city MPGe: {{ e.city08U }}
+      </div>
+      <div *ngIf="e.highway08">
+        highway MPGe: {{ e.highway08U }}
+      </div>
+      <div *ngIf="e.fuelType == 'Electricity'">
+        highway MPGe: {{ (100.0 / e.cityE) | number:'1.2-2'}}
+      </div>
+      <div *ngIf="e.fuelType == 'Electricity'">
+        highway estimated mi/kw: {{ (e.city08U / 33.705) | number:'1.2-2'}}
+      </div>
+       <ul>
+        <li *ngFor="let entry of e | keyvalue">
+          {{ entry.key }}: {{ entry.value }}
+        </li>
+      </ul>
+    </div>-->
+  </form>
+</div>

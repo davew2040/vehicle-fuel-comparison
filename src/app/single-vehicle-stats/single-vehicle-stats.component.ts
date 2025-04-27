@@ -38,24 +38,24 @@ export class SingleVehicleStatsComponent {
   public setVehicleStats(vehicle: VehicleFuelApiResponse) {
     console.log('setVehicleStats', vehicle)
 
-    this.formControls['cityMpkwh'].setValue(vehicle.city08U)
-    this.formControls['highwayMpKwh'].setValue(vehicle.highway08U)
+    this.formControls['cityMpkwh'].setValue(this.limitDecimals(vehicle.city08U, 2))
+    this.formControls['highwayMpKwh'].setValue(this.limitDecimals(vehicle.highway08U, 2))
 
     if (vehicle.fuelType === FuelTypeApiValue.Electricity) {
-      this.formControls['cityMpkwh'].setValue(100.0 / vehicle.cityE)
-      this.formControls['highwayMpKwh'].setValue(100.0 / vehicle.highwayE)
+      this.formControls['cityMpkwh'].setValue(this.limitDecimals(100.0 / vehicle.cityE, 2))
+      this.formControls['highwayMpKwh'].setValue(this.limitDecimals(100.0 / vehicle.highwayE, 2))
 
-      this.formControls['cityMpg'].setValue(vehicle.city08U)
-      this.formControls['highwayMpg'].setValue(vehicle.highway08U)
+      this.formControls['cityMpg'].setValue(this.limitDecimals(vehicle.city08U, 2))
+      this.formControls['highwayMpg'].setValue(this.limitDecimals(vehicle.highway08U, 2))
 
       this.formControls['selectedFuelType'].setValue(FuelType.Electric)
     }
     else {
-      this.formControls['cityMpg'].setValue(vehicle.city08U)
-      this.formControls['highwayMpg'].setValue(vehicle.highway08U)
+      this.formControls['cityMpg'].setValue(this.limitDecimals(vehicle.city08U, 2))
+      this.formControls['highwayMpg'].setValue(this.limitDecimals(vehicle.highway08U, 2))
 
-      this.formControls['cityMpkwh'].setValue(vehicle.city08U / 33.705)
-      this.formControls['highwayMpKwh'].setValue(vehicle.highway08U/ 33.705)
+      this.formControls['cityMpkwh'].setValue(this.limitDecimals(vehicle.city08U / 33.705, 2))
+      this.formControls['highwayMpKwh'].setValue(this.limitDecimals(vehicle.highway08U/ 33.705, 2))
 
       this.formControls['selectedFuelType'].setValue(FuelType.Gasoline)
     }
@@ -66,6 +66,25 @@ export class SingleVehicleStatsComponent {
   get formControls() {
     return this.valuesForm.controls;
   }
+
+  limitDecimals(value: any, decimals: number): number {
+    if (typeof value === 'number')
+    {
+      const fixed = parseFloat(value.toFixed(decimals))
+      return fixed;
+    }
+
+    return value;
+  }
+
+  isGasolineSelected(): boolean {
+    return this.valuesForm.get('selectedFuelType')!.value === FuelType.Gasoline
+  }
+
+  isElectricSelected(): boolean {
+    return this.valuesForm.get('selectedFuelType')!.value === FuelType.Electric
+  }
+
 
   get currentStats(): SingleVehicleStatsData {
     if (this.formControls['selectedFuelType'].value == FuelType.Gasoline) {

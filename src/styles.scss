@@ -1,1 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
+
+.good-text {
+  color: #29d129;
+  font-weight: bold;
+}
+
+.bad-text {
+  color: #cd1c1c;
+  font-weight: bold;
+}
+
+.themed-grid-col {
+  padding-top: .75rem;
+  padding-bottom: .75rem;
+  background-color: rgb(77 64 255 / 8%);
+  border: 1px solid rgb(44 77 249 / 30%);
+}

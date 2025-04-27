@@ -5,3 +5,5 @@ import { VehicleComparisonComponent } from './app/vehicle-comparison/vehicle-com
 
 bootstrapApplication(AppComponent, appConfig)
   .catch((err) => console.error(err));
+
+  document.documentElement.setAttribute('data-bs-theme', 'dark')

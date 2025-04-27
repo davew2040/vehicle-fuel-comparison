@@ -9,36 +9,51 @@ import { SingleVehicleStatsComponent, SingleVehicleStatsData } from "../single-v
 import { VehicleFuelApiResponse } from '../models/vehicle-fuel-api-response';
 import { FuelType } from '../enums/fuel-type';
 import { NoRoundPipe } from "../pipes/no-round.pipe";
+import { VehiclePickerComponent } from "../vehicle-picker/vehicle-picker.component";
+import { SelectedVehicle } from '../models/selected-vehicle';
+import { CostComparisonComponent } from '../cost-comparison/cost-comparison.component';
+import { DollarsCostComparisonComponent } from '../dollars-cost-comparison/dollars-cost-comparison.component';
+import { TwoVehicleComparisonComponent } from "../two-vehicle-comparison/two-vehicle-comparison.component";
 
 @Component({
   selector: 'vehicle-comparison',
   templateUrl: './vehicle-comparison.component.html',
   styleUrls: ['./vehicle-comparison.component.scss'],
   standalone: true,
-  imports: [TrailingDecimalsPipe, CommonModule, ReactiveFormsModule, FormsModule, HttpClientModule, SingleVehicleStatsComponent, NoRoundPipe]
+  imports: [TrailingDecimalsPipe, CommonModule, ReactiveFormsModule, FormsModule, TwoVehicleComparisonComponent, SingleVehicleStatsComponent, NoRoundPipe, VehiclePickerComponent, TwoVehicleComparisonComponent]
 })
 export class VehicleComparisonComponent implements OnInit, OnDestroy {
   @ViewChild('vehicleOne') vehicleOne!: SingleVehicleStatsComponent;
+  @ViewChild('vehicleTwo') vehicleTwo!: SingleVehicleStatsComponent;
+  @ViewChild('vehiclePickerOne') vehiclePickerOne!: VehiclePickerComponent;
+  @ViewChild('vehiclePickerTwo') vehiclePickerTwo!: VehiclePickerComponent;
+
+  testVehicle1 : SelectedVehicle = {
+    year: 2023,
+    make: 'Ford',
+    model: 'Mustang Mach-E RWD',
+    trimId: 46517
+  }
+
+  testVehicle2: SelectedVehicle = {
+    year: 2023,
+    make: 'Ford',
+    model: 'Escape FWD',
+    trimId: 46324
+  }
 
   numberForm: FormGroup;
-  vehicleSearchForm: FormGroup;
   costSummary: CostSummary = new CostSummary(1, 1, 1, 1, 1)
   destroy$: Subject<void>;
 
   vehicleOneStats$: Subject<SingleVehicleStatsData> = new Subject<SingleVehicleStatsData>();
-
-  availableYears$: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
-  availableMakes$: Observable<string[]>;
-  availableModels$: Observable<string[]>;
-  availableTrims$: Observable<Trim[]>;
+  vehicleTwoStats$: Subject<SingleVehicleStatsData> = new Subject<SingleVehicleStatsData>();
 
   latestEfficiencyInfo: VehicleFuelApiResponse | undefined = undefined;
 
-  efficiencyInfo$: Observable<VehicleFuelApiResponse | undefined>;
-
   vehicleOneSummary$: Observable<SingleVehicleCostSummary | undefined> | undefined;
   vehicleTwoSummary$: Observable<SingleVehicleCostSummary | undefined> | undefined;
-  vehicleComparison$: Observable<TwoVehicleCostComparison | undefined> | undefined;
+  vehicleComparison$: Observable<TwoVehicleCostComparison | null> | undefined;
 
   loaded = false;
 
@@ -52,169 +67,6 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
       costPerKwh: ['0.15', [Validators.required, numberValidator()]],
       milesPerYear: ['12000', [Validators.required, numberValidator()]],
     });
-
-    this.vehicleSearchForm = this.fb.group({
-      year: [2024],
-      make: ['Ford'],
-      model: ['Mustang Mach-E RWD'],
-      trim: [47822]
-    })
-
-    this.availableMakes$ = this.vehicleSearchForm.controls['year'].valueChanges
-      .pipe(
-        startWith(this.vehicleSearchForm.controls['year'].value),
-        distinctUntilChanged(),
-        switchMap(newYear => {
-          console.log('availableMakes$', newYear)
-
-          if (newYear === undefined) {
-            return of([]); // or return EMPTY if you want to emit nothing
-          }
-
-          return of([]).pipe(
-            switchMap(() =>
-              this.client.get<DefaultApiResponse>(`https://fueleconomy.gov/ws/rest/vehicle/menu/make?year=${newYear}`)
-                .pipe(
-                  catchError(err => {
-                    console.error(err);
-                    return of(null); // or your own error sentinel
-                  }),
-                  map(r => {
-                    if (r === null) {
-                      return [] as string[]
-                    }
-
-                    return r?.menuItem.map(i => i.text)
-                  })
-                )
-            ));
-          }));
-
-    this.availableModels$ = combineLatest([
-      this.vehicleSearchForm.controls['year'].valueChanges,
-      this.vehicleSearchForm.controls['make'].valueChanges
-    ])
-      .pipe(
-        map( ([year, make]) => ({
-          year: year,
-          make: make
-        })),
-        startWith({
-          year: this.vehicleSearchForm.controls['year'].value,
-          make: this.vehicleSearchForm.controls['make'].value
-        }),
-        switchMap(values => {
-          if (!values.year || !values.make) {
-            return of([]); // or return EMPTY if you want to emit nothing
-          }
-
-          return of([]).pipe(
-            switchMap(() =>
-              this.client.get<DefaultApiResponse>(`https://fueleconomy.gov/ws/rest/vehicle/menu/model?year=${values.year}&make=${values.make}`)
-                .pipe(
-                  catchError(err => {
-                    console.error(err);
-                    return of(null); // or your own error sentinel
-                  }),
-                  map(r => {
-                    if (r === null) {
-                      return [] as string[]
-                    }
-
-                    return r?.menuItem.map(i => i.text)
-                  })
-                )
-            ));
-          }));
-
-    this.availableTrims$ = combineLatest([
-      this.vehicleSearchForm.controls['year'].valueChanges,
-      this.vehicleSearchForm.controls['make'].valueChanges,
-      this.vehicleSearchForm.controls['model'].valueChanges
-    ])
-      .pipe(
-        map( ([year, make, model]) => ({
-          year: year,
-          make: make,
-          model: model
-        })),
-        startWith({
-          year: this.vehicleSearchForm.controls['year'].value,
-          make: this.vehicleSearchForm.controls['make'].value,
-          model: this.vehicleSearchForm.controls['model'].value,
-        }),
-        switchMap(values => {
-          if (!values.year || !values.make || !values.model) {
-            return of([]); // or return EMPTY if you want to emit nothing
-          }
-
-          return of([])
-            .pipe(
-              switchMap(() =>
-                this.client.get(`https://fueleconomy.gov/ws/rest/vehicle/menu/options?year=${values.year}&make=${values.make}&model=${values.model}`)
-                  .pipe(
-                    catchError(err => {
-                      console.error(err);
-                      return of(null);
-                    }),
-                    map(r => {
-                      if (r === null) {
-                        return [] as Trim[]
-                      }
-
-                      const rDynamic = r as any;
-
-                      if (Array.isArray(rDynamic["menuItem"])) {
-                        const source = rDynamic["menuItem"] as MenuItemApiResponse[];
-
-                        return source.map(s => {
-                          const newTrim: Trim = {
-                            id: parseInt(s.value),
-                            text: s.text
-                          }
-
-                          return newTrim;
-                        });
-                      }
-                      else {
-                        const source = rDynamic["menuItem"] as MenuItemApiResponse;
-
-                        const newTrim: Trim = {
-                          id: parseInt(source.value),
-                          text: source.text
-                        }
-
-                        return [newTrim];
-                      }})
-                    )
-                  )
-                );
-              }
-              ));
-
-    this.efficiencyInfo$ = this.vehicleSearchForm.controls['trim'].valueChanges
-      .pipe(
-        startWith(this.vehicleSearchForm.controls['trim'].value),
-        switchMap(trim => {
-          if (!trim) {
-            return of(undefined); // or return EMPTY if you want to emit nothing
-          }
-
-          return of([])
-            .pipe(
-              switchMap(() =>
-                this.client.get(`https://fueleconomy.gov//ws/rest/vehicle/${trim}`)
-                  .pipe(
-                    catchError(err => {
-                      console.error(err);
-                      return of(undefined);
-                    }),
-                    map(r => r as VehicleFuelApiResponse)
-                  )
-                )
-              );
-            }
-          ));
   }
 
   ngOnDestroy(): void {
@@ -227,60 +79,6 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.combineFieldValues();
-
-    this.client.get<DefaultApiResponse>('https://fueleconomy.gov/ws/rest/vehicle/menu/year')
-      .pipe(
-        map(result => result.menuItem.map(text => parseInt(text.value)))
-      )
-      .subscribe(mapped => {
-        this.availableYears$.next(mapped);
-      });
-
-    this.vehicleSearchForm.controls['year'].valueChanges
-      .pipe(
-        takeUntil(this.destroy$)
-      )
-      .subscribe(newValue => {
-        console.log('year changed - ', newValue)
-        if (this.loaded) {
-          this.vehicleSearchForm.controls['make'].setValue(undefined)
-        }
-      });
-
-    this.vehicleSearchForm.controls['make'].valueChanges
-      .pipe(
-        takeUntil(this.destroy$)
-      )
-      .subscribe(newValue => {
-        console.log('make changed -', newValue)
-        if (this.loaded) {
-          this.vehicleSearchForm.controls['model'].setValue(undefined)
-        }
-      });
-
-      this.vehicleSearchForm.controls['model'].valueChanges
-        .pipe(
-          takeUntil(this.destroy$)
-        )
-        .subscribe(newValue => {
-          console.log('model changed -', newValue)
-          if (this.loaded) {
-            this.vehicleSearchForm.controls['trim'].setValue(undefined)
-          }
-        });
-
-      this.vehicleSearchForm.controls['trim'].valueChanges
-        .pipe(
-          takeUntil(this.destroy$)
-        )
-        .subscribe(newValue => {
-          console.log('fixme trim - ', newValue)
-        });
-
-    this.efficiencyInfo$.subscribe(newValues => {
-      console.log('fixme efficiency - ', newValues)
-      this.latestEfficiencyInfo = newValues;
-    })
 
     this.vehicleOneSummary$ = combineLatest([
         this.numberForm.statusChanges.pipe(startWith('VALID')),
@@ -315,11 +113,67 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
         })
       )
 
-    this.loaded = true
-  }
+      this.vehicleTwoSummary$ = combineLatest([
+        this.numberForm.statusChanges.pipe(startWith('VALID')),
+        this.numberForm.get('costPerKwh')!.valueChanges.pipe(startWith(this.numberForm.get('costPerKwh')!.value)),
+        this.numberForm.get('costPerGallon')!.valueChanges.pipe(startWith(this.numberForm.get('costPerGallon')!.value)),
+        this.numberForm.get('milesPerYear')!.valueChanges.pipe(startWith(this.numberForm.get('milesPerYear')!.value)),
+        this.vehicleTwoStats$
+      ])
+      .pipe(
+        map(([status, costPerKwh, costPerGallon, milesPerYear, vehicleStats]) => {
+          if (status !== 'VALID') {
+            return undefined;
+          }
 
-  setVehicle(vehicleInfo: VehicleFuelApiResponse) {
-    this.vehicleOne.setVehicleStats(vehicleInfo);
+          let costPerUnit = costPerGallon;
+          if (vehicleStats.fuelType === FuelType.Electric) {
+            costPerUnit = costPerKwh
+          }
+
+          console.log('vehicleStats', vehicleStats)
+          console.log('costPerKwh', costPerKwh)
+
+          console.log('cityCostPerMile', costPerUnit / vehicleStats.cityMilesPerUnit)
+          console.log('highwayCostPerMile', costPerUnit / vehicleStats.highwayMilesPerUnit)
+
+          return {
+            cityCostPerMile: costPerUnit / vehicleStats.cityMilesPerUnit,
+            cityCostPerYear: milesPerYear * costPerUnit / vehicleStats.cityMilesPerUnit,
+            highwayCostPerMile: costPerUnit / vehicleStats.highwayMilesPerUnit,
+            highwayCostPerYear: milesPerYear * costPerUnit / vehicleStats.highwayMilesPerUnit,
+          } as SingleVehicleCostSummary;
+        })
+      )
+
+      this.vehicleComparison$ = combineLatest([
+        this.vehicleOneSummary$,
+        this.vehicleTwoSummary$
+      ]).pipe(
+        map(([vehicleOne, vehicleTwo]) => {
+          if (!vehicleOne || !vehicleTwo) {
+            return null;
+          }
+
+          const comparison: TwoVehicleCostComparison = {
+            cityCostDifference: vehicleOne.cityCostPerMile / vehicleTwo.cityCostPerMile,
+            highwayCostDifference: vehicleOne.highwayCostPerMile / vehicleTwo.highwayCostPerMile,
+            cityCost1: vehicleOne.cityCostPerYear,
+            cityCost2: vehicleTwo.cityCostPerYear,
+            highwayCost1: vehicleOne.highwayCostPerYear,
+            highwayCost2: vehicleTwo.highwayCostPerYear,
+          };
+
+          return comparison;
+        })
+      )
+
+      setTimeout(() => {
+        this.vehiclePickerOne.initializeVehicleValues(this.testVehicle1);
+        this.vehiclePickerTwo.initializeVehicleValues(this.testVehicle2);
+      }, 1)
+
+    this.loaded = true
   }
 
   combineFieldValues() {
@@ -359,6 +213,14 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
       });
   }
 
+  setVehicleOne(newVehicle: VehicleFuelApiResponse) {
+    this.vehicleOne.setVehicleStats(newVehicle)
+  }
+
+  setVehicleTwo(newVehicle: VehicleFuelApiResponse) {
+    this.vehicleTwo.setVehicleStats(newVehicle)
+  }
+
   getTrailingDecimals(num: number) {
     let str = num.toFixed(6); // Ensure at least 6 decimal places
     return str.slice(str.indexOf('.') + 0, str.indexOf('.') + 7); // Extract 3rd to 6th decimal places
@@ -381,12 +243,6 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
       return null;
     };
   }
-
-  /* vehicle search */
-
-  get vehicleSearchControls() {
-    return this.vehicleSearchForm.controls;
-  }
 }
 
 interface SingleVehicleCostSummary {
@@ -398,7 +254,11 @@ interface SingleVehicleCostSummary {
 
 interface TwoVehicleCostComparison {
   cityCostDifference: number,
-  highwayCostDifference: number
+  highwayCostDifference: number,
+  cityCost1: number,
+  cityCost2: number,
+  highwayCost1: number;
+  highwayCost2: number;
 }
 
 class CostSummary {
@@ -433,24 +293,4 @@ class CostSummary {
   get evCostPerYear(): number {
     return this.evCostPerMile * this.milesPerYear;
   }
-}
-
-interface DefaultApiResponse {
-  [key: string]: any;
-  menuItem: { text: string, value: string }[];
-}
-
-interface TrimApiResponse {
-  [key: string]: any;
-  menuItem: { text: string, value: string };
-}
-
-interface MenuItemApiResponse {
-  text: string,
-  value: string
-}
-
-interface Trim {
-  text: string,
-  id: number
 }

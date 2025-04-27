@@ -1,0 +1,13 @@
+<div class='comparison-summary'>
+  <div>
+    <span *ngIf="(costOne-costTwo) === 0.0">
+      Identical
+    </span>
+    <span *ngIf="(costOne-costTwo) > 0.0">
+      <span class="bad-text">${{ abs(costOne-costTwo) | number:'1.2-2' }} more</span>
+    </span>
+    <span *ngIf="(costOne-costTwo) < 0.0">
+      <span class="good-text">${{ abs(costOne-costTwo) | number:'1.2-2' }} less</span>
+    </span>
+  </div>
+</div>
