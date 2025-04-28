@@ -2,10 +2,11 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output, Signal, SimpleChanges, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, ValidatorFn, AbstractControl, ValidationErrors, FormsModule  } from '@angular/forms';
-import { BehaviorSubject, catchError, combineLatest, distinctUntilChanged, map, Observable, of, startWith, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, distinctUntilChanged, filter, map, Observable, of, startWith, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { DefaultApiResponse, MenuItemApiResponse, Trim } from '../models/api/fuel-economy-gov-types';
 import { VehicleFuelApiResponse } from '../models/vehicle-fuel-api-response';
 import { SelectedVehicle } from '../models/selected-vehicle';
+import { SelectedVehicleDetails } from '../models/selected-vehicle-details';
 
 @Component({
   selector: 'app-vehicle-picker',
@@ -15,7 +16,7 @@ import { SelectedVehicle } from '../models/selected-vehicle';
 })
 export class VehiclePickerComponent {
   @Output()
-  vehicleSelected = new EventEmitter<VehicleFuelApiResponse>();
+  vehicleSelected = new EventEmitter<SelectedVehicleDetails>();
 
   @Input()
   buttonText: string = "Set Vehicle"
@@ -260,16 +261,43 @@ export class VehiclePickerComponent {
           console.log("fixme newTrims", newTrims)
         })
 
-    this.efficiencyInfo$
-      .pipe(
-        takeUntil(this.destroy$)
-      )
-      .subscribe(newValues => {
-        console.log('fixme efficiency - ', newValues)
-        if (newValues) {
-          this.onVehicleSet(newValues)
+    combineLatest([
+      this.vehicleSearchForm.controls['year'].valueChanges
+        .pipe(startWith(this.vehicleSearchForm.controls['year'].value)),
+      this.vehicleSearchForm.controls['make'].valueChanges
+        .pipe(startWith(this.vehicleSearchForm.controls['make'].value)),
+      this.vehicleSearchForm.controls['model'].valueChanges
+        .pipe(startWith(this.vehicleSearchForm.controls['model'].value)),
+      this.vehicleSearchForm.controls['trim'].valueChanges
+        .pipe(startWith(this.vehicleSearchForm.controls['trim'].value)),
+      this.efficiencyInfo$
+    ])
+    .pipe(
+      takeUntil(this.destroy$),
+      map(([year, make, model, trimId, efficiency]) => {
+        if (year && make && model && trimId && efficiency) {
+          const vehicleSelection: SelectedVehicle = {
+            year, 
+            make,
+            model, 
+            trimId
+          };
+
+          const result: SelectedVehicleDetails = {
+            vehicleSelection: vehicleSelection,
+            efficiencyInfo: efficiency
+          };
+
+          return result;
         }
-      })
+
+        return null;
+      }),
+      filter(f => !!f)
+    )
+    .subscribe(selectedVehicleInfo => {
+      this.vehicleSelected.emit(selectedVehicleInfo);
+    })
 
     this.loaded = true
   }
@@ -292,9 +320,5 @@ export class VehiclePickerComponent {
       this.vehicleSearchControls['model'].setValue(newVehicle.model);
       this.vehicleSearchControls['trim'].setValue(newVehicle.trimId);
     }
-  }
-
-  onVehicleSet(vehicleInfo: VehicleFuelApiResponse) {
-    this.vehicleSelected.emit(vehicleInfo);
   }
 }

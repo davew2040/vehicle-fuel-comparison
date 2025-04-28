@@ -14,6 +14,7 @@ import { SelectedVehicle } from '../models/selected-vehicle';
 import { CostComparisonComponent } from '../cost-comparison/cost-comparison.component';
 import { DollarsCostComparisonComponent } from '../dollars-cost-comparison/dollars-cost-comparison.component';
 import { TwoVehicleComparisonComponent } from "../two-vehicle-comparison/two-vehicle-comparison.component";
+import { SelectedVehicleDetails } from '../models/selected-vehicle-details';
 
 @Component({
   selector: 'vehicle-comparison',
@@ -213,11 +214,11 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
       });
   }
 
-  setVehicleOne(newVehicle: VehicleFuelApiResponse) {
+  setVehicleOne(newVehicle: SelectedVehicleDetails) {
     this.vehicleOne.setVehicleStats(newVehicle)
   }
 
-  setVehicleTwo(newVehicle: VehicleFuelApiResponse) {
+  setVehicleTwo(newVehicle: SelectedVehicleDetails) {
     this.vehicleTwo.setVehicleStats(newVehicle)
   }
 
