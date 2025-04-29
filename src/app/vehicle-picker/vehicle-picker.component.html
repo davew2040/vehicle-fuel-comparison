@@ -83,7 +83,7 @@
             href="#"
             (click)="this.vehicleSearchForm.get('trim')?.setValue(option); $event.preventDefault();">
             {{ option.text }}
-            <span *ngIf="vehicleSearchForm.get('trim')?.value.id === option.id">✅</span>
+            <span *ngIf="vehicleSearchForm.get('trim')?.value?.id === option.id">✅</span>
           </a>
         </li>
       </ul>
