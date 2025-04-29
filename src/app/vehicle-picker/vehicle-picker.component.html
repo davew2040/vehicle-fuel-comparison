@@ -74,16 +74,16 @@
           id="dropdownMenuButton"
           data-bs-toggle="dropdown"
           aria-expanded="false">
-        {{ vehicleSearchForm.get('trim')?.value || 'Select trim' }}
+        {{ (vehicleSearchForm.get('trim')?.value)?.text || 'Select trim' }}
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <li *ngFor="let option of availableTrims$ | async">
           <a
             class="dropdown-item"
             href="#"
-            (click)="this.vehicleSearchForm.get('trim')?.setValue(option.id); $event.preventDefault();">
+            (click)="this.vehicleSearchForm.get('trim')?.setValue(option); $event.preventDefault();">
             {{ option.text }}
-            <span *ngIf="vehicleSearchForm.get('trim')?.value === option">✅</span>
+            <span *ngIf="vehicleSearchForm.get('trim')?.value.id === option.id">✅</span>
           </a>
         </li>
       </ul>

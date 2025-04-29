@@ -180,14 +180,17 @@ export class VehiclePickerComponent {
     .pipe(
       startWith(this.vehicleSearchForm.controls['trim'].value),
       switchMap(trim => {
+
         if (!trim) {
           return of(undefined); // or return EMPTY if you want to emit nothing
         }
 
+        const castedTrim: Trim = trim;
+
         return of([])
           .pipe(
             switchMap(() =>
-              this.client.get(`https://fueleconomy.gov//ws/rest/vehicle/${trim}`)
+              this.client.get(`https://fueleconomy.gov//ws/rest/vehicle/${castedTrim.id}`)
                 .pipe(
                   catchError(err => {
                     console.error(err);
@@ -269,18 +272,21 @@ export class VehiclePickerComponent {
       this.vehicleSearchForm.controls['model'].valueChanges
         .pipe(startWith(this.vehicleSearchForm.controls['model'].value)),
       this.vehicleSearchForm.controls['trim'].valueChanges
-        .pipe(startWith(this.vehicleSearchForm.controls['trim'].value)),
+        .pipe(
+          startWith(this.vehicleSearchForm.controls['trim'].value),
+          map(trim => trim as Trim | undefined)
+        ),
       this.efficiencyInfo$
     ])
     .pipe(
       takeUntil(this.destroy$),
-      map(([year, make, model, trimId, efficiency]) => {
-        if (year && make && model && trimId && efficiency) {
+      map(([year, make, model, trim, efficiency]) => {
+        if (year && make && model && trim && efficiency) {
           const vehicleSelection: SelectedVehicle = {
             year, 
             make,
             model, 
-            trimId
+            trim
           };
 
           const result: SelectedVehicleDetails = {
@@ -318,7 +324,7 @@ export class VehiclePickerComponent {
       this.vehicleSearchControls['year'].setValue(newVehicle.year);
       this.vehicleSearchControls['make'].setValue(newVehicle.make);
       this.vehicleSearchControls['model'].setValue(newVehicle.model);
-      this.vehicleSearchControls['trim'].setValue(newVehicle.trimId);
+      this.vehicleSearchControls['trim'].setValue(newVehicle.trim);
     }
   }
 }

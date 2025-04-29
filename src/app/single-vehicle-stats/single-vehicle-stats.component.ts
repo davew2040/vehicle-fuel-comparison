@@ -1,14 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { numberValidator } from '../validators/number-validator';
 import { FuelType } from '../enums/fuel-type';
 import { TrailingDecimalsPipe } from '../pipes/trailingDecimals.pipe';
 import { CommonModule } from '@angular/common';
-import { Subject } from 'rxjs';
+import { startWith, Subject, takeUntil } from 'rxjs';
 import { VehicleFuelApiResponse } from '../models/vehicle-fuel-api-response';
 import { FuelTypeApiValue } from '../enums/fuel-type-api-values';
 import { SelectedVehicleDetails } from '../models/selected-vehicle-details';
+import { mpgToMpkwh, mpkwhToMphg as mpKwhToMpg } from '../utilities/conversions';
 
 @Component({
   selector: 'app-single-vehicle-stats',
@@ -30,14 +31,6 @@ export class SingleVehicleStatsComponent {
   constructor(private fb: FormBuilder) {
     this.destroy$ = new Subject<void>();
 
-    this.valuesForm = new FormGroup<StatsForm>({
-      cityMpg: ['25', [Validators.required, numberValidator()]],
-      highwayMpg: ['30', [Validators.required, numberValidator()]],
-      cityMpkwh: ['3.5', [Validators.required, numberValidator()]],
-      highwayMpKwh: ['3.0', [Validators.required, numberValidator()]],
-      selectedFuelType: [FuelType.Gasoline]
-    });
-
     this.valuesForm = this.fb.group({
       cityMpg: ['25', [Validators.required, numberValidator()]],
       highwayMpg: ['30', [Validators.required, numberValidator()]],
@@ -45,6 +38,80 @@ export class SingleVehicleStatsComponent {
       highwayMpKwh: ['3.0', [Validators.required, numberValidator()]],
       selectedFuelType: [FuelType.Gasoline]
     });
+  }
+
+  ngOnInit() {
+    this.cityMpg.valueChanges
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(cityMpg => {
+        if (this.selectedFuelType.value === FuelType.Gasoline) {
+          const value = mpgToMpkwh(parseFloat(cityMpg))
+
+          this.cityMpkwh.setValue(value.toString())
+        }
+      });
+
+    this.highwayMpg.valueChanges
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(highwayMpg => {
+        if (this.selectedFuelType.value === FuelType.Gasoline) {
+          const value = mpgToMpkwh(parseFloat(highwayMpg))
+
+          this.highwayMpKwh.setValue(value.toString())
+        }
+      });
+
+    this.cityMpkwh.valueChanges
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(cityMpkwh => {
+        if (this.selectedFuelType.value === FuelType.Electric) {
+          const value = mpKwhToMpg(parseFloat(cityMpkwh))
+
+          this.cityMpg.setValue(value.toString())
+        }
+      });
+
+    this.highwayMpKwh.valueChanges
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(highwayMpKwh => {
+        if (this.selectedFuelType.value === FuelType.Electric) {
+          const value = mpKwhToMpg(parseFloat(highwayMpKwh))
+
+          this.highwayMpg.setValue(value.toString())
+        }
+      });
+  }
+
+  get selectedFuelType(): AbstractControl {
+    return this.valuesForm.controls['selectedFuelType']
+  }
+
+  get cityMpg(): AbstractControl {
+    return this.valuesForm.controls['cityMpg']
+  }
+
+  get highwayMpg(): AbstractControl {
+    return this.valuesForm.controls['highwayMpg']
+  }
+
+  get cityMpkwh(): AbstractControl {
+    return this.valuesForm.controls['cityMpkwh']
+  }
+
+  get highwayMpKwh(): AbstractControl {
+    return this.valuesForm.controls['highwayMpKwh']
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
   }
 
   public setVehicleStats(vehicle: SelectedVehicleDetails) {
@@ -123,10 +190,10 @@ export interface SingleVehicleStatsData {
   fuelType: FuelType
 }
 
-interface StatsForm {
-  cityMpg: FormControl<string>;
-  highwayMpg: FormControl<string>;
-  cityMpkwh: FormControl<string>;
-  highwayMpKwh: FormControl<string>;
-  selectedFuelType: FormControl<FuelType>;
-}
+// interface StatsForm {
+//   cityMpg: FormControl<string>;
+//   highwayMpg: FormControl<string>;
+//   cityMpkwh: FormControl<string>;
+//   highwayMpKwh: FormControl<string>;
+//   selectedFuelType: FormControl<FuelType>;
+// }

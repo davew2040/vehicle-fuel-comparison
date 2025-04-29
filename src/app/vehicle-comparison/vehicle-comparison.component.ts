@@ -15,6 +15,7 @@ import { CostComparisonComponent } from '../cost-comparison/cost-comparison.comp
 import { DollarsCostComparisonComponent } from '../dollars-cost-comparison/dollars-cost-comparison.component';
 import { TwoVehicleComparisonComponent } from "../two-vehicle-comparison/two-vehicle-comparison.component";
 import { SelectedVehicleDetails } from '../models/selected-vehicle-details';
+import { FuelPricesApiResponse } from '../models/api/fuel-prices-api-response';
 
 @Component({
   selector: 'vehicle-comparison',
@@ -33,14 +34,20 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
     year: 2023,
     make: 'Ford',
     model: 'Mustang Mach-E RWD',
-    trimId: 46517
+    trim: {
+      text: 'Auto (A1)',
+      id: 46517,
+    }
   }
 
   testVehicle2: SelectedVehicle = {
     year: 2023,
     make: 'Ford',
     model: 'Escape FWD',
-    trimId: 46324
+    trim: {
+      text: 'Auto 8-spd, 3 cyl, 1.5 L, Turbo',
+      id: 46324,
+    }
   }
 
   numberForm: FormGroup;
@@ -80,6 +87,15 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.combineFieldValues();
+
+    this.client.get<FuelPricesApiResponse>('https://www.fueleconomy.gov/ws/rest/fuelprices')
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(mapped => {
+        this.numberForm.controls['costPerKwh'].setValue(mapped.electric)
+        this.numberForm.controls['costPerGallon'].setValue(mapped.regular)
+      });
 
     this.vehicleOneSummary$ = combineLatest([
         this.numberForm.statusChanges.pipe(startWith('VALID')),
