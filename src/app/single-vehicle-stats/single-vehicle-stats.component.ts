@@ -5,7 +5,7 @@ import { numberValidator } from '../validators/number-validator';
 import { FuelType } from '../enums/fuel-type';
 import { TrailingDecimalsPipe } from '../pipes/trailingDecimals.pipe';
 import { CommonModule } from '@angular/common';
-import { startWith, Subject, takeUntil } from 'rxjs';
+import { combineLatest, startWith, Subject, takeUntil } from 'rxjs';
 import { VehicleFuelApiResponse } from '../models/vehicle-fuel-api-response';
 import { FuelTypeApiValue } from '../enums/fuel-type-api-values';
 import { SelectedVehicleDetails } from '../models/selected-vehicle-details';
@@ -41,6 +41,22 @@ export class SingleVehicleStatsComponent {
   }
 
   ngOnInit() {
+    combineLatest([
+      this.cityMpg.valueChanges, 
+      this.highwayMpg.valueChanges, 
+      this.cityMpkwh.valueChanges, 
+      this.highwayMpKwh.valueChanges
+    ])
+    .pipe(
+      takeUntil(this.destroy$)
+    )
+    .subscribe(([cityMpg, highwayMpg, cityMpkwh, highwayMpKwh]) => {
+      if (this.valuesForm.valid) {
+        this.selectedVehicleStats.emit(this.currentStats)
+      }
+    });
+
+
     this.cityMpg.valueChanges
       .pipe(
         takeUntil(this.destroy$)
@@ -119,10 +135,12 @@ export class SingleVehicleStatsComponent {
 
     console.log('setVehicleStats', vehicleEfficiency)
 
-    this.formControls['cityMpkwh'].setValue(this.limitDecimals(vehicleEfficiency.city08U, 2))
-    this.formControls['highwayMpKwh'].setValue(this.limitDecimals(vehicleEfficiency.highway08U, 2))
+    // this.formControls['cityMpkwh'].setValue(this.limitDecimals(vehicleEfficiency.city08U, 2))
+    // this.formControls['highwayMpKwh'].setValue(this.limitDecimals(vehicleEfficiency.highway08U, 2))
 
     if (vehicleEfficiency.fuelType === FuelTypeApiValue.Electricity) {
+      this.formControls['selectedFuelType'].setValue(FuelType.Electric)
+
       this.formControls['cityMpkwh'].setValue(this.limitDecimals(100.0 / vehicleEfficiency.cityE, 2))
       this.formControls['highwayMpKwh'].setValue(this.limitDecimals(100.0 / vehicleEfficiency.highwayE, 2))
 
@@ -130,13 +148,13 @@ export class SingleVehicleStatsComponent {
       this.formControls['highwayMpg'].setValue(this.limitDecimals(vehicleEfficiency.highway08U, 2))
     }
     else {
+      this.formControls['selectedFuelType'].setValue(FuelType.Gasoline)
+
       this.formControls['cityMpg'].setValue(this.limitDecimals(vehicleEfficiency.city08U, 2))
       this.formControls['highwayMpg'].setValue(this.limitDecimals(vehicleEfficiency.highway08U, 2))
 
       this.formControls['cityMpkwh'].setValue(this.limitDecimals(vehicleEfficiency.city08U / 33.705, 2))
       this.formControls['highwayMpKwh'].setValue(this.limitDecimals(vehicleEfficiency.highway08U/ 33.705, 2))
-
-      this.formControls['selectedFuelType'].setValue(FuelType.Gasoline)
     }
 
     this.selectedVehicleStats.emit(this.currentStats)
