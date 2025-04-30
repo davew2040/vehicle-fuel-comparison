@@ -49,7 +49,7 @@ export class SingleVehicleStatsComponent {
         if (this.selectedFuelType.value === FuelType.Gasoline) {
           const value = mpgToMpkwh(parseFloat(cityMpg))
 
-          this.cityMpkwh.setValue(value.toString())
+          this.cityMpkwh.setValue(this.limitDecimals(value, 2))
         }
       });
 
@@ -61,7 +61,7 @@ export class SingleVehicleStatsComponent {
         if (this.selectedFuelType.value === FuelType.Gasoline) {
           const value = mpgToMpkwh(parseFloat(highwayMpg))
 
-          this.highwayMpKwh.setValue(value.toString())
+          this.highwayMpKwh.setValue(this.limitDecimals(value, 2))
         }
       });
 
@@ -73,7 +73,7 @@ export class SingleVehicleStatsComponent {
         if (this.selectedFuelType.value === FuelType.Electric) {
           const value = mpKwhToMpg(parseFloat(cityMpkwh))
 
-          this.cityMpg.setValue(value.toString())
+          this.cityMpg.setValue(this.limitDecimals(value, 2))
         }
       });
 
@@ -85,7 +85,7 @@ export class SingleVehicleStatsComponent {
         if (this.selectedFuelType.value === FuelType.Electric) {
           const value = mpKwhToMpg(parseFloat(highwayMpKwh))
 
-          this.highwayMpg.setValue(value.toString())
+          this.highwayMpg.setValue(this.limitDecimals(value, 2))
         }
       });
   }
@@ -128,8 +128,6 @@ export class SingleVehicleStatsComponent {
 
       this.formControls['cityMpg'].setValue(this.limitDecimals(vehicleEfficiency.city08U, 2))
       this.formControls['highwayMpg'].setValue(this.limitDecimals(vehicleEfficiency.highway08U, 2))
-
-      this.formControls['selectedFuelType'].setValue(FuelType.Electric)
     }
     else {
       this.formControls['cityMpg'].setValue(this.limitDecimals(vehicleEfficiency.city08U, 2))
