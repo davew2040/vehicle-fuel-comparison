@@ -1,7 +1,11 @@
 <div class='comparison-summary' *ngIf="comparison">
     <div class="card mb-4 rounded-3 shadow-sm">
       <div class="card-header py-3">
-        <h4 class="my-0 fw-normal">Vehicle #1 vs Vehicle #2</h4>
+        <h4 class="my-0 fw-normal text-center">
+          <h5>{{ this.vehicleOneMakeModel() }}</h5>
+          <h6>vs.</h6>
+          <h6>{{ this.vehicleTwoMakeModel() }}</h6>
+        </h4>
       </div>
 
       <div class="card-body row text-start">
@@ -27,7 +31,11 @@
 
     <div class="card mb-4 rounded-3 shadow-sm">
       <div class="card-header py-3">
-        <h4 class="my-0 fw-normal">Vehicle #2 vs Vehicle #1</h4>
+        <div class="my-0 fw-normal text-center">
+          <h5>{{ this.vehicleTwoMakeModel() }}</h5>
+          <h6>vs.</h6>
+          <h6>{{ this.vehicleOneMakeModel() }}</h6>
+        </div>
       </div>
 
       <div class="card-body row text-start">

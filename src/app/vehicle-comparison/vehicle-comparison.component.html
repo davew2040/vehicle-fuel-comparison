@@ -64,11 +64,11 @@
           <app-vehicle-picker #vehiclePickerOne [buttonText]="'Set Vehicle #1'" (vehicleSelected)="setVehicleOne($event)"></app-vehicle-picker>
 
           <app-single-vehicle-stats
-            #vehicleOne
+            #vehicleOneStats
             (selectedVehicleStats)="this.vehicleOneStats$.next($event)"
             [btnPrefix]="'vehicle1-'"></app-single-vehicle-stats>
 
-          <div class='single-cost-summary' *ngIf="vehicleOneSummary$ | async as summary">
+          <div class='single-cost-summary' *ngIf="vehicleOneCostSummary$ | async as summary">
             <ng-container
               *ngTemplateOutlet="singlecostsummary;
                 context: {
@@ -99,12 +99,12 @@
           <app-vehicle-picker #vehiclePickerTwo [buttonText]="'Set Vehicle #2'" (vehicleSelected)="setVehicleTwo($event)"></app-vehicle-picker>
 
           <app-single-vehicle-stats
-            #vehicleTwo
+            #vehicleTwoStats
             (selectedVehicleStats)="this.vehicleTwoStats$.next($event)"
             [btnPrefix]="'vehicle2-'"
             ></app-single-vehicle-stats>
 
-          <div class='single-cost-summary' *ngIf="vehicleTwoSummary$ | async as summary">
+          <div class='single-cost-summary' *ngIf="vehicleTwoCostSummary$ | async as summary">
             <ng-container
                 *ngTemplateOutlet="singlecostsummary;
                   context: {

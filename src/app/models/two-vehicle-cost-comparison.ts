@@ -1,3 +1,5 @@
+import { SelectedVehicleDetails } from "./selected-vehicle-details";
+
 export interface TwoVehicleCostComparison {
   cityCostDifference: number,
   highwayCostDifference: number,
@@ -5,4 +7,6 @@ export interface TwoVehicleCostComparison {
   cityCost2: number,
   highwayCost1: number;
   highwayCost2: number;
+  vehicleOne: SelectedVehicleDetails;
+  vehicleTwo: SelectedVehicleDetails;
 }

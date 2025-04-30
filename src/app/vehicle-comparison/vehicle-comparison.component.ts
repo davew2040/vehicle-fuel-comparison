@@ -16,6 +16,7 @@ import { DollarsCostComparisonComponent } from '../dollars-cost-comparison/dolla
 import { TwoVehicleComparisonComponent } from "../two-vehicle-comparison/two-vehicle-comparison.component";
 import { SelectedVehicleDetails } from '../models/selected-vehicle-details';
 import { FuelPricesApiResponse } from '../models/api/fuel-prices-api-response';
+import { TwoVehicleCostComparison } from '../models/two-vehicle-cost-comparison';
 
 @Component({
   selector: 'vehicle-comparison',
@@ -25,12 +26,12 @@ import { FuelPricesApiResponse } from '../models/api/fuel-prices-api-response';
   imports: [TrailingDecimalsPipe, CommonModule, ReactiveFormsModule, FormsModule, TwoVehicleComparisonComponent, SingleVehicleStatsComponent, NoRoundPipe, VehiclePickerComponent, TwoVehicleComparisonComponent]
 })
 export class VehicleComparisonComponent implements OnInit, OnDestroy {
-  @ViewChild('vehicleOne') vehicleOne!: SingleVehicleStatsComponent;
-  @ViewChild('vehicleTwo') vehicleTwo!: SingleVehicleStatsComponent;
+  @ViewChild('vehicleOneStats') vehicleOneStats!: SingleVehicleStatsComponent;
+  @ViewChild('vehicleTwoStats') vehicleTwoStats!: SingleVehicleStatsComponent;
   @ViewChild('vehiclePickerOne') vehiclePickerOne!: VehiclePickerComponent;
   @ViewChild('vehiclePickerTwo') vehiclePickerTwo!: VehiclePickerComponent;
 
-  testVehicle1 : SelectedVehicle = {
+  defaultVehicle1 : SelectedVehicle = {
     year: 2023,
     make: 'Ford',
     model: 'Mustang Mach-E RWD',
@@ -40,7 +41,7 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
     }
   }
 
-  testVehicle2: SelectedVehicle = {
+  defaultVehicle2: SelectedVehicle = {
     year: 2023,
     make: 'Ford',
     model: 'Escape FWD',
@@ -59,9 +60,12 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
 
   latestEfficiencyInfo: VehicleFuelApiResponse | undefined = undefined;
 
-  vehicleOneSummary$: Observable<SingleVehicleCostSummary | undefined> | undefined;
-  vehicleTwoSummary$: Observable<SingleVehicleCostSummary | undefined> | undefined;
+  vehicleOneCostSummary$: Observable<SingleVehicleCostSummary | undefined> | undefined;
+  vehicleTwoCostSummary$: Observable<SingleVehicleCostSummary | undefined> | undefined;
   vehicleComparison$: Observable<TwoVehicleCostComparison | null> | undefined;
+
+  vehicleOneDetails$ = new BehaviorSubject<SelectedVehicleDetails | null>(null);
+  vehicleTwoDetails$ = new BehaviorSubject<SelectedVehicleDetails | null>(null);
 
   loaded = false;
 
@@ -97,7 +101,7 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
         this.numberForm.controls['costPerGallon'].setValue(mapped.regular)
       });
 
-    this.vehicleOneSummary$ = combineLatest([
+    this.vehicleOneCostSummary$ = combineLatest([
         this.numberForm.statusChanges.pipe(startWith('VALID')),
         this.numberForm.get('costPerKwh')!.valueChanges.pipe(startWith(this.numberForm.get('costPerKwh')!.value)),
         this.numberForm.get('costPerGallon')!.valueChanges.pipe(startWith(this.numberForm.get('costPerGallon')!.value)),
@@ -130,7 +134,7 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
         })
       )
 
-      this.vehicleTwoSummary$ = combineLatest([
+      this.vehicleTwoCostSummary$ = combineLatest([
         this.numberForm.statusChanges.pipe(startWith('VALID')),
         this.numberForm.get('costPerKwh')!.valueChanges.pipe(startWith(this.numberForm.get('costPerKwh')!.value)),
         this.numberForm.get('costPerGallon')!.valueChanges.pipe(startWith(this.numberForm.get('costPerGallon')!.value)),
@@ -164,21 +168,25 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
       )
 
       this.vehicleComparison$ = combineLatest([
-        this.vehicleOneSummary$,
-        this.vehicleTwoSummary$
+        this.vehicleOneCostSummary$,
+        this.vehicleTwoCostSummary$,
+        this.vehicleOneDetails$,
+        this.vehicleTwoDetails$
       ]).pipe(
-        map(([vehicleOne, vehicleTwo]) => {
-          if (!vehicleOne || !vehicleTwo) {
+        map(([vehicleOneCosts, vehicleTwoCosts, vehicleOneDetails, vehicleTwoDetails]) => {
+          if (!vehicleOneCosts || !vehicleTwoCosts || !vehicleOneDetails || !vehicleTwoDetails) {
             return null;
           }
 
           const comparison: TwoVehicleCostComparison = {
-            cityCostDifference: vehicleOne.cityCostPerMile / vehicleTwo.cityCostPerMile,
-            highwayCostDifference: vehicleOne.highwayCostPerMile / vehicleTwo.highwayCostPerMile,
-            cityCost1: vehicleOne.cityCostPerYear,
-            cityCost2: vehicleTwo.cityCostPerYear,
-            highwayCost1: vehicleOne.highwayCostPerYear,
-            highwayCost2: vehicleTwo.highwayCostPerYear,
+            cityCostDifference: vehicleOneCosts.cityCostPerMile / vehicleTwoCosts.cityCostPerMile,
+            highwayCostDifference: vehicleOneCosts.highwayCostPerMile / vehicleTwoCosts.highwayCostPerMile,
+            cityCost1: vehicleOneCosts.cityCostPerYear,
+            cityCost2: vehicleTwoCosts.cityCostPerYear,
+            highwayCost1: vehicleOneCosts.highwayCostPerYear,
+            highwayCost2: vehicleTwoCosts.highwayCostPerYear,
+            vehicleOne: vehicleOneDetails,
+            vehicleTwo: vehicleTwoDetails
           };
 
           return comparison;
@@ -186,8 +194,8 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
       )
 
       setTimeout(() => {
-        this.vehiclePickerOne.initializeVehicleValues(this.testVehicle1);
-        this.vehiclePickerTwo.initializeVehicleValues(this.testVehicle2);
+        this.vehiclePickerOne.initializeVehicleValues(this.defaultVehicle1);
+        this.vehiclePickerTwo.initializeVehicleValues(this.defaultVehicle2);
       }, 1)
 
     this.loaded = true
@@ -231,11 +239,13 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
   }
 
   setVehicleOne(newVehicle: SelectedVehicleDetails) {
-    this.vehicleOne.setVehicleStats(newVehicle)
+    this.vehicleOneStats.setVehicleStats(newVehicle)
+    this.vehicleOneDetails$.next(newVehicle)
   }
 
   setVehicleTwo(newVehicle: SelectedVehicleDetails) {
-    this.vehicleTwo.setVehicleStats(newVehicle)
+    this.vehicleTwoStats.setVehicleStats(newVehicle)
+    this.vehicleTwoDetails$.next(newVehicle)
   }
 
   getTrailingDecimals(num: number) {
@@ -267,15 +277,6 @@ interface SingleVehicleCostSummary {
     cityCostPerYear: number,
     highwayCostPerMile: number,
     highwayCostPerYear: number
-}
-
-interface TwoVehicleCostComparison {
-  cityCostDifference: number,
-  highwayCostDifference: number,
-  cityCost1: number,
-  cityCost2: number,
-  highwayCost1: number;
-  highwayCost2: number;
 }
 
 class CostSummary {
