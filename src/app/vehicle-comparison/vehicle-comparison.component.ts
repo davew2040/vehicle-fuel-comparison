@@ -17,6 +17,7 @@ import { TwoVehicleComparisonComponent } from "../two-vehicle-comparison/two-veh
 import { SelectedVehicleDetails } from '../models/selected-vehicle-details';
 import { FuelPricesApiResponse } from '../models/api/fuel-prices-api-response';
 import { TwoVehicleCostComparison } from '../models/two-vehicle-cost-comparison';
+import { LocalStorageService } from '../services/local-storage-service';
 
 @Component({
   selector: 'vehicle-comparison',
@@ -69,7 +70,7 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
 
   loaded = false;
 
-  constructor(private fb: FormBuilder, private client: HttpClient) {
+  constructor(private fb: FormBuilder, private client: HttpClient, private storage: LocalStorageService) {
     this.destroy$ = new Subject<void>();
 
     this.numberForm = this.fb.group({
@@ -194,8 +195,23 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
       )
 
       setTimeout(() => {
-        this.vehiclePickerOne.initializeVehicleValues(this.defaultVehicle1);
-        this.vehiclePickerTwo.initializeVehicleValues(this.defaultVehicle2);
+        const storedVehicle1 = this.storage.getFirstVehicle();
+
+        if (storedVehicle1) {
+          this.vehiclePickerOne.initializeVehicleValues(storedVehicle1);
+        }
+        else {
+          this.vehiclePickerOne.initializeVehicleValues(this.defaultVehicle1);
+        }
+
+        const storedVehicle2 = this.storage.getSecondVehicle();
+
+        if (storedVehicle2) {
+          this.vehiclePickerTwo.initializeVehicleValues(storedVehicle2);
+        }
+        else {
+          this.vehiclePickerTwo.initializeVehicleValues(this.defaultVehicle2);
+        }
       }, 1)
 
     this.loaded = true
@@ -241,11 +257,19 @@ export class VehicleComparisonComponent implements OnInit, OnDestroy {
   setVehicleOne(newVehicle: SelectedVehicleDetails) {
     this.vehicleOneStats.setVehicleStats(newVehicle)
     this.vehicleOneDetails$.next(newVehicle)
+
+    if (newVehicle && newVehicle.vehicleSelection !== this.defaultVehicle1) {
+      this.storage.setFirstVehicle(newVehicle.vehicleSelection)
+    }
   }
 
   setVehicleTwo(newVehicle: SelectedVehicleDetails) {
     this.vehicleTwoStats.setVehicleStats(newVehicle)
     this.vehicleTwoDetails$.next(newVehicle)
+
+    if (newVehicle && newVehicle.vehicleSelection !== this.defaultVehicle2) {
+      this.storage.setSecondVehicle(newVehicle.vehicleSelection)
+    }
   }
 
   getTrailingDecimals(num: number) {

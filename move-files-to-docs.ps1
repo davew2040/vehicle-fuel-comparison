@@ -1,19 +1,11 @@
-# Define paths
-$source = "docs\\browser"
+# Define source and destination directories
+$source = "docs/browser"
 $destination = "docs"
 
-function CopyFilesToFolder ($fromFolder, $toFolder) {
-  $childItems = Get-ChildItem $fromFolder
-  $childItems | ForEach-Object {
-       Copy-Item -Path $_.FullName -Destination $toFolder -Recurse -Force
-  }
+# Ensure destination directory exists
+if (-not (Test-Path -Path $destination)) {
+    Write-Error "ERROR: Path $source does not exist."
 }
 
-# Ensure source exists
-if (Test-Path $source) {
-    CopyFilesToFolder $source $destination
-
-    Write-Host " Files moved and browser folder removed."
-} else {
-    Write-Host " 'docs\\browser' does not exist."
-}
+# Copy all files (recursively) without modifying source
+Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
