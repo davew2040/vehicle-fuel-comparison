@@ -1,13 +1,13 @@
 export interface VehicleFuelApiResponse {
-  city08: number;
-  city08U: number;
-  cityE: number;
-  highwayE: number;
-  highway08: number;
-  highway08U: number;
+  city08: string;
+  city08U: string;
+  cityE: string;
+  highwayE: string;
+  highway08: string;
+  highway08U: string;
   fuelType1: string;
   fuelType2: string;
   fuelType: string;
-  rangeCity: number;
-  rangeHwy: number;
+  rangeCity: string;
+  rangeHwy: string;
 }
