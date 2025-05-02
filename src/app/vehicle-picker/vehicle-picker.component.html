@@ -113,7 +113,7 @@
                 href="#"
                 (click)="this.trim.setValue(option); $event.preventDefault();">
                 {{ option.text }}
-               <span *ngIf="this.trim.value === option">✅</span>
+               <span *ngIf="this.trim.value.id === option.id">✅</span>
             </a>
             </li>
           </ng-container>
