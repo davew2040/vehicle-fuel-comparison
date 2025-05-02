@@ -8,22 +8,22 @@
           id="dropdownMenuButton"
           data-bs-toggle="dropdown"
           aria-expanded="false">
-        {{ vehicleSearchForm.get('year')?.value || 'Select year' }}
+        {{ this.year.value || 'Select year' }}
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <li *ngFor="let option of availableYears$ | async">
           <a
             class="dropdown-item"
             href="#"
-            (click)="this.vehicleSearchForm.get('year')?.setValue(option); $event.preventDefault();">
+            (click)="this.year.setValue(option); $event.preventDefault();">
             {{ option }}
-            <span *ngIf="vehicleSearchForm.get('year')?.value === option">✅</span>
+            <span *ngIf="this.year?.value === option">✅</span>
           </a>
         </li>
       </ul>
     </div>
 
-    <div class="dropdown mb-3">
+    <div class="dropdown mb-3" [hidden]="!this.year.value">
       <button
           class="btn btn-secondary dropdown-toggle w-100"
           type="button"
@@ -33,19 +33,30 @@
         {{ vehicleSearchForm.get('make')?.value || 'Select make' }}
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <li *ngFor="let option of availableMakes$ | async">
-          <a
-            class="dropdown-item"
-            href="#"
-            (click)="this.vehicleSearchForm.get('make')?.setValue(option); $event.preventDefault();">
-            {{ option }}
-            <!--  <span *ngIf="vehicleSearchForm.get('make')?.value === option">✅</span> -->
-          </a>
-        </li>
+
+        <ng-container *ngIf="(availableMakes$ | async) as availableMakes">
+          <ng-container *ngIf="availableMakes.status === loadingStatusEnum.Loading">
+            <li>
+              <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Loading...</a>
+            </li>
+          </ng-container>
+
+          <ng-container *ngIf="availableMakes.status === loadingStatusEnum.Loaded">
+            <li *ngFor="let option of availableMakes.data">
+              <a
+                class="dropdown-item"
+                href="#"
+                (click)="this.vehicleSearchForm.get('make')?.setValue(option); $event.preventDefault();">
+                {{ option }}
+               <span *ngIf="this.make.value === option">✅</span>
+            </a>
+            </li>
+          </ng-container>
+        </ng-container>
       </ul>
     </div>
 
-    <div class="dropdown mb-3">
+    <div class="dropdown mb-3" [hidden]="!this.make.value">
       <button
           class="btn btn-secondary dropdown-toggle w-100"
           type="button"
@@ -55,37 +66,58 @@
         {{ vehicleSearchForm.get('model')?.value || 'Select model' }}
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <li *ngFor="let option of availableModels$ | async">
-          <a
-            class="dropdown-item"
-            href="#"
-            (click)="this.vehicleSearchForm.get('model')?.setValue(option); $event.preventDefault();">
-            {{ option }}
-            <span *ngIf="vehicleSearchForm.get('model')?.value === option">✅</span>
-          </a>
-        </li>
+
+        <ng-container *ngIf="(availableModels$ | async) as availableModels">
+          <ng-container *ngIf="availableModels.status === loadingStatusEnum.Loading">
+            <li>
+              <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Loading...</a>
+            </li>
+          </ng-container>
+
+          <ng-container *ngIf="availableModels.status === loadingStatusEnum.Loaded">
+            <li *ngFor="let option of availableModels.data">
+              <a
+                class="dropdown-item"
+                href="#"
+                (click)="this.model.setValue(option); $event.preventDefault();">
+                {{ option }}
+              <span *ngIf="this.model.value === option">✅</span>
+            </a>
+            </li>
+          </ng-container>
+        </ng-container>
       </ul>
     </div>
 
-    <div class="dropdown mb-3">
+    <div class="dropdown mb-3" [hidden]="!this.model.value">
       <button
           class="btn btn-secondary dropdown-toggle w-100"
           type="button"
           id="dropdownMenuButton"
           data-bs-toggle="dropdown"
           aria-expanded="false">
-        {{ (vehicleSearchForm.get('trim')?.value)?.text || 'Select trim' }}
+        {{ (this.trim.value)?.text || 'Select trim' }}
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <li *ngFor="let option of availableTrims$ | async">
-          <a
-            class="dropdown-item"
-            href="#"
-            (click)="this.vehicleSearchForm.get('trim')?.setValue(option); $event.preventDefault();">
-            {{ option.text }}
-            <span *ngIf="vehicleSearchForm.get('trim')?.value?.id === option.id">✅</span>
-          </a>
-        </li>
+        <ng-container *ngIf="(availableTrims$ | async) as trims">
+          <ng-container *ngIf="trims.status === loadingStatusEnum.Loading">
+            <li>
+              <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Loading...</a>
+            </li>
+          </ng-container>
+
+          <ng-container *ngIf="trims.status === loadingStatusEnum.Loaded">
+            <li *ngFor="let option of trims.data">
+              <a
+                class="dropdown-item"
+                href="#"
+                (click)="this.trim.setValue(option); $event.preventDefault();">
+                {{ option.text }}
+               <span *ngIf="this.trim.value === option">✅</span>
+            </a>
+            </li>
+          </ng-container>
+        </ng-container>
       </ul>
     </div>
   </form>
