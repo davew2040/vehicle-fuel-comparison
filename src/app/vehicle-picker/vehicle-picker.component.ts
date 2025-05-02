@@ -129,6 +129,10 @@ export class VehiclePickerComponent {
         tap(fixme => console.log('fixme availableMakes input', fixme)),
         withWaitingAsync<string, LoadingData<string[]>>(
           async newYear => {
+            if (newYear) {
+              new LoadingData([], LoadingStatus.Loaded)
+            }
+
             const result = await firstValueFrom(
               this.client.get<DefaultApiResponse>(`https://fueleconomy.gov/ws/rest/vehicle/menu/make?year=${newYear}`)
             ).then(response => response?.menuItem.map(i => i.text));
@@ -155,6 +159,10 @@ export class VehiclePickerComponent {
         })),
         withWaitingAsync(
           async values => {
+            if (!values.year || !values.make) {
+              new LoadingData([], LoadingStatus.Loaded)
+            }
+
             const result = await firstValueFrom(
               this.client.get<DefaultApiResponse>(`https://fueleconomy.gov/ws/rest/vehicle/menu/model?year=${values.year}&make=${values.make}`)
             ).then(response => response?.menuItem.map(i => i.text));
@@ -167,44 +175,6 @@ export class VehiclePickerComponent {
         share()
       );
 
-
-  // this.availableModels$ = combineLatest([
-  //   this.year.valueChanges
-  //     .pipe(startWith(this.year.value)),
-  //   this.vehicleSearchForm.controls['make'].valueChanges
-  //     .pipe(startWith(this.vehicleSearchForm.controls['make'].value))
-  // ])
-  //   .pipe(
-  //     map( ([year, make]) => ({
-  //       year: year,
-  //       make: make
-  //     })),
-  //     switchMap(values => {
-  //       if (!values.year || !values.make) {
-  //         return of([]); // or return EMPTY if you want to emit nothing
-  //       }
-
-  //       return of([]).pipe(
-  //         switchMap(() =>
-  //           this.client.get<DefaultApiResponse>(`https://fueleconomy.gov/ws/rest/vehicle/menu/model?year=${values.year}&make=${values.make}`)
-  //             .pipe(
-  //               catchError(err => {
-  //                 console.error(err);
-  //                 return of(null); // or your own error sentinel
-  //               }),
-  //               map(r => {
-  //                 if (!r) {
-  //                   return [] as string[]
-  //                 }
-
-  //                 return r?.menuItem.map(i => i.text)
-  //               })
-  //             )
-  //         ));
-  //       }),
-  //       share()
-  //     );
-
   this.availableTrims$ = combineLatest([
     this.year.valueChanges
       .pipe(startWith(this.year.value)),
@@ -214,7 +184,6 @@ export class VehiclePickerComponent {
       .pipe(startWith(this.model.value))
   ])
     .pipe(
-      //tap(values => console.log("fixme availableTrims tap", values)),
       map( ([year, make, model]) => ({
         year: year,
         make: make,
@@ -222,6 +191,10 @@ export class VehiclePickerComponent {
       })),
       withWaitingAsync(
         async values => {
+          if (!values.year || !values.make || !values.model) {
+            new LoadingData([], LoadingStatus.Loaded)
+          }
+
           const result = await firstValueFrom(
             this.client.get<DefaultApiResponse>(`https://fueleconomy.gov/ws/rest/vehicle/menu/options?year=${values.year}&make=${values.make}&model=${values.model}`)
           );
@@ -262,7 +235,6 @@ export class VehiclePickerComponent {
     .pipe(
       startWith(this.trim.value),
       switchMap(trim => {
-
         if (!trim) {
           return of(undefined); // or return EMPTY if you want to emit nothing
         }
